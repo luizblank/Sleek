@@ -8,13 +8,20 @@
 import SwiftUI
 
 struct RouterView: View {
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
     @State var selectedView: Int = 0
-    
+
     var body: some View {
-        switch selectedView {
-        case 0: HomeView(selectedView: $selectedView)
-        case 1: PurchasedView(selectedView: $selectedView)
-        default: HomeView(selectedView: $selectedView)
+        if !hasSeenOnboarding {
+            NavigationStack {
+                OnBoarding1()
+            }
+        } else {
+            switch selectedView {
+            case 0: HomeView(selectedView: $selectedView)
+            case 1: PurchasedView(selectedView: $selectedView)
+            default: HomeView(selectedView: $selectedView)
+            }
         }
     }
 }

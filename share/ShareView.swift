@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct ShareView: View {
-    var image: UIImage?
-    
+    var images: [UIImage]
+    var isLoading: Bool
+
     var onSave: () -> Void
     var onCancel: () -> Void
-    
+
+    private var saveButtonLabel: String {
+        images.count > 1 ? "Add \(images.count) items" : "Add to wishlist"
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             Image(.blankLogo)
@@ -20,21 +25,39 @@ struct ShareView: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 80)
                 .padding(.top)
-            
-            Spacer()
-            
-            if let image = image {
-                Image(uiImage: image)
+
+            if isLoading {
+                Spacer()
+                ProgressView("Processing image...")
+                Spacer()
+            } else if images.isEmpty {
+                Spacer()
+                Text("No images found")
+                    .foregroundColor(.white)
+                Spacer()
+            } else if images.count == 1, let only = images.first {
+                Image(uiImage: only)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding()
             } else {
-                ProgressView("Processing image...")
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(Array(images.enumerated()), id: \.offset) { _, image in
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.vertical, 8)
             }
-            
-            Spacer()
-            
+
             HStack {
                 Button(action: onCancel) {
                     Text("Cancel")
@@ -48,17 +71,17 @@ struct ShareView: View {
                 }
                 Spacer()
                 Button(action: onSave) {
-                    Text("Add to wishlist")
+                    Text(saveButtonLabel)
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.white)
                         .stroke()
-                        .frame(width: 116, height: 48)
+                        .frame(width: 160, height: 48)
                         .background(.white)
                         .clipShape(Capsule())
                         .stroke()
                 }
-                .disabled(image == nil)
-                .opacity(image == nil ? 0.5 : 1.0)
+                .disabled(images.isEmpty)
+                .opacity(images.isEmpty ? 0.5 : 1.0)
             }
             .padding(.horizontal)
             .padding(.bottom)

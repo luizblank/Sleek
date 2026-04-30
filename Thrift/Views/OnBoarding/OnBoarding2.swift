@@ -1,33 +1,36 @@
 //
-//  OnBoarding.swift
+//  OnBoarding2.swift
 //  Thrift
 //
-//  Created by Luiz Antonio Rosa Cardoso on 15/10/25.
+//  Created by Luiz Antonio Rosa Cardoso on 29/04/26.
 //
 
 import SwiftUI
 
-struct OnBoarding1: View {
+struct OnBoarding2: View {
     @EnvironmentObject var configModel: Config
     @State private var containerSize: CGSize = .zero
 
     var body: some View {
         ZStack {
-            VStack(alignment: .center) {
-                Image(.blankLogo)
+            VStack(alignment: .center, spacing: 16) {
+                Image(systemName: "cabinet.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 150, height: 130)
-                
-                Text("Welcome to Sleek!")
+                    .frame(width: 130, height: 130)
+                    .foregroundStyle(.white)
+                    .stroke()
+                    .padding(.bottom, 8)
+
+                Text("Your wardrobe")
                     .sleekText(.large)
-                Text("The stylish home\nfor everything you want.")
+                Text("A cozy spot for everything\nyou already own.")
                     .sleekText(.medium)
                     .multilineTextAlignment(.center)
             }
-            
+
             NavigationLink {
-                OnBoarding2()
+                OnBoarding3()
             } label: {
                 Text("Next")
                     .font(.customFont(name: configModel.font, size: 24, weight: .bold))
@@ -54,6 +57,8 @@ struct OnBoarding1: View {
 }
 
 #Preview {
-    OnBoarding1()
-        .environmentObject(Config())
+    NavigationStack {
+        OnBoarding2()
+            .environmentObject(Config())
+    }
 }

@@ -33,43 +33,15 @@ struct ItemsListView: View {
             
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(filteredItems, id: \.id) { item in
-                        Button {
-                            if !editMode {
-                                self.navigate.toggle()
+                    ForEach(filteredItems, id: \.persistentModelID) { item in
+                        ItemTile(
+                            item: item,
+                            editMode: $editMode,
+                            onTap: {
                                 self.selectedItem = item
+                                self.navigate.toggle()
                             }
-                        } label: {
-                            Image(source: item.getUIImage(), fallbackSystemName: ItemUtils.randomIcon(for: item))
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundStyle(configModel.textColor)
-                                .padding()
-                                .stroke()
-                                .simultaneousGesture(
-                                    LongPressGesture(minimumDuration: 0.5)
-                                        .onEnded { _ in
-                                            withAnimation(.spring(duration: 1)) {
-                                                self.editMode = true
-                                            }
-                                        }
-                                )
-                                .frame(maxHeight: 200)
-                                .draggable(item) {
-                                    Image(source: item.getUIImage(), fallbackSystemName: ItemUtils.randomIcon(for: item))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .foregroundStyle(configModel.textColor)
-                                        .frame(width: 80, height: 80)
-                                        .padding()
-                                }
-                        }
-                        .accessibilityLabel(item.name == "" ? String(localized: "Default item") : item.name)
-                        .accessibilityAddTraits(.isButton)
-                        .accessibilityHint("Click here to open this item")
-                        .rotationEffect(Angle(degrees: editMode ? 3 : 0), anchor: .center)
-                        .animation(editMode ? .easeInOut(duration: 0.2).repeatForever(autoreverses: true) : .default, value: editMode)
-                        .id(item.imageData)
+                        )
                     }
                 }
                 .padding(16)
@@ -77,6 +49,83 @@ struct ItemsListView: View {
         }
         .navigationDestination(isPresented: $navigate) {
             ItemView(item: $selectedItem)
+        }
+    }
+}
+
+private struct ItemTile: View {
+    let item: Item
+    @Binding var editMode: Bool
+    let onTap: () -> Void
+
+    @EnvironmentObject private var configModel: Config
+
+    @State private var wiggleAngle: Double = 0
+
+    private var baseAngle: Double {
+        item.persistentModelID.hashValue.isMultiple(of: 2) ? 2.5 : -2.5
+    }
+
+    private var staggerDelay: Double {
+        Double(abs(item.persistentModelID.hashValue) % 80) / 1000.0
+    }
+
+    var body: some View {
+        let tile = Image(source: item.getUIImage(), fallbackSystemName: ItemUtils.randomIcon(for: item))
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundStyle(configModel.textColor)
+            .padding()
+            .stroke()
+            .frame(maxHeight: 200)
+            .contentShape(Rectangle())
+
+        Group {
+            if editMode {
+                tile.draggable(item.transferable) {
+                    Image(source: item.getUIImage(), fallbackSystemName: ItemUtils.randomIcon(for: item))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .foregroundStyle(configModel.textColor)
+                        .frame(width: 80, height: 80)
+                        .padding()
+                }
+            } else {
+                tile
+                    .onTapGesture { onTap() }
+                    .onLongPressGesture(minimumDuration: 0.5) {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                            editMode = true
+                        }
+                    }
+            }
+        }
+        .accessibilityLabel(item.name == "" ? String(localized: "Default item") : item.name)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Click here to open this item")
+        .rotationEffect(.degrees(wiggleAngle), anchor: .center)
+        .onAppear {
+            if editMode { startWiggle() }
+        }
+        .onChange(of: editMode) { _, isEditing in
+            if isEditing { startWiggle() } else { stopWiggle() }
+        }
+    }
+
+    private func startWiggle() {
+        wiggleAngle = baseAngle
+        withAnimation(
+            .easeInOut(duration: 0.18)
+                .repeatForever(autoreverses: true)
+                .delay(staggerDelay)
+        ) {
+            wiggleAngle = -baseAngle
+        }
+    }
+
+    private func stopWiggle() {
+        withAnimation(.easeOut(duration: 0.2)) {
+            wiggleAngle = 0
         }
     }
 }

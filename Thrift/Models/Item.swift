@@ -7,15 +7,15 @@
 
 import SwiftUI
 import SwiftData
-import UniformTypeIdentifiers
 
 @Model
-class Item: Identifiable, Codable, Transferable {
-    var id = UUID()
-    
+class Item: Identifiable {
+    var id: UUID = UUID()
+    var iconName: String?
+
     @Attribute(.externalStorage)
     var imageData: Data
-    
+
     var name: String
     var desc: String
     var price: Double
@@ -56,45 +56,10 @@ class Item: Identifiable, Codable, Transferable {
         self.isFavorite = isFavorite
         self.isPurchased = isPurchased
         self.wasCreated = Date()
-    }
-    
-    // Paradas pro drag and drop funcionar
-    enum CodingKeys: String, CodingKey {
-        case id, imageData, name, desc, price, links, categories, isFavorite, isPurchased, wasCreated
-    }
-    
-    static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .item)
-    }
-    
-    // Métodos para conformar ao Codable
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(UUID.self, forKey: .id)
-        self.imageData = try container.decode(Data.self, forKey: .imageData)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.desc = try container.decode(String.self, forKey: .desc)
-        self.price = try container.decode(Double.self, forKey: .price)
-        self.links = try container.decode([String].self, forKey: .links)
-        self.categories = try container.decode([String].self, forKey: .categories)
-        self.isFavorite = try container.decode(Bool.self, forKey: .isFavorite)
-        self.isPurchased = try container.decode(Bool.self, forKey: .isPurchased)
-        self.wasCreated = try container.decode(Date.self, forKey: .wasCreated)
+        self.iconName = ItemUtils.allIcons.randomElement()
     }
 
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(imageData, forKey: .imageData)
-        try container.encode(name, forKey: .name)
-        try container.encode(desc, forKey: .desc)
-        try container.encode(price, forKey: .price)
-        try container.encode(links, forKey: .links)
-        try container.encode(categories, forKey: .categories)
-        try container.encode(isFavorite, forKey: .isFavorite)
-        try container.encode(isPurchased, forKey: .isPurchased)
-        try container.encode(wasCreated, forKey: .wasCreated)
-    }
+    var transferable: ItemTransfer { ItemTransfer(id: id) }
 }
 
 extension Item {

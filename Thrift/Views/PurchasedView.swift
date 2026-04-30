@@ -17,7 +17,8 @@ struct PurchasedView: View {
     
     @State private var showFilterSheet: Bool = false
     @State private var filteredCategories: [String] = []
-    
+    @State private var containerSize: CGSize = .zero
+
     @Query(filter: #Predicate<Item> { $0.isPurchased }, sort: \Item.wasCreated, order: .reverse) var items: [Item]
     
     var body: some View {
@@ -47,7 +48,7 @@ struct PurchasedView: View {
                     
                     Spacer()
                 }
-                .position(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height - 200)
+                .position(x: containerSize.width / 2, y: containerSize.height - 100)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background {
@@ -61,8 +62,14 @@ struct PurchasedView: View {
                         .ignoresSafeArea()
                 }
             }
+            .onGeometryChange(for: CGSize.self) { proxy in
+                proxy.size
+            } action: { newSize in
+                containerSize = newSize
+            }
             .navigationBarBackButtonHidden()
             .toolbar { ToolbarItems(showFilterSheet: $showFilterSheet) }
+            .toolbarBackground(.hidden, for: .navigationBar)
             .sheet(isPresented: $showFilterSheet) {
                 FilterView(categories: ItemUtils.getCategories(from: items), filteredCategories: $filteredCategories)
             }

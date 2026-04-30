@@ -51,10 +51,15 @@ struct ItemImage: View {
                             guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else {
                                 return
                             }
-                            
+
                             let stickerData = try await StickerCreator.create(from: data)
-                            
+
                             item.updateImageData(stickerData)
+
+                            if item.name.isEmpty,
+                               let suggested = await ImageClassifier.suggestedName(from: stickerData) {
+                                item.name = suggested
+                            }
                         } catch {
                             print(error.localizedDescription)
                         }
@@ -66,7 +71,6 @@ struct ItemImage: View {
                     .rotationEffect(Angle(degrees: -16))
                     .offset(x: -10, y: -40)
             }
-            .id(item.imageData)
     }
 }
 

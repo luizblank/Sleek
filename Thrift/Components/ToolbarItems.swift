@@ -17,6 +17,7 @@ struct ToolbarItems: ToolbarContent {
                 .frame(height: 46)
                 .fixedSize(horizontal: true, vertical: false)
         }
+        .sharedBackgroundVisibility(.hidden)
         
         ToolbarItem(placement: .topBarTrailing) {
             HStack {
@@ -30,7 +31,7 @@ struct ToolbarItems: ToolbarContent {
                         .accessibilityAddTraits(.isButton)
                         .accessibilityHint("Open the filter to select the registered categories")
                 }
-                
+
                 NavigationLink {
                     ConfigView()
                 } label: {
@@ -43,5 +44,6 @@ struct ToolbarItems: ToolbarContent {
                 }
             }
         }
+        .sharedBackgroundVisibility(.hidden)
     }
 }

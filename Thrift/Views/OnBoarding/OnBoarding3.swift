@@ -1,33 +1,41 @@
 //
-//  OnBoarding.swift
+//  OnBoarding3.swift
 //  Thrift
 //
-//  Created by Luiz Antonio Rosa Cardoso on 15/10/25.
+//  Created by Luiz Antonio Rosa Cardoso on 29/04/26.
 //
 
 import SwiftUI
 
-struct OnBoarding1: View {
+struct OnBoarding3: View {
     @EnvironmentObject var configModel: Config
+
+    @State private var wiggle: Bool = false
     @State private var containerSize: CGSize = .zero
 
     var body: some View {
         ZStack {
-            VStack(alignment: .center) {
-                Image(.blankLogo)
+            VStack(alignment: .center, spacing: 16) {
+                Image(systemName: "hand.tap.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 150, height: 130)
-                
-                Text("Welcome to Sleek!")
+                    .frame(width: 120, height: 120)
+                    .foregroundStyle(.white)
+                    .stroke()
+                    .rotationEffect(Angle(degrees: wiggle ? 6 : -6), anchor: .center)
+                    .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: wiggle)
+                    .padding(.bottom, 8)
+                    .onAppear { wiggle = true }
+
+                Text("Edit mode")
                     .sleekText(.large)
-                Text("The stylish home\nfor everything you want.")
+                Text("Hold any item to start\nrearranging your wishlist.")
                     .sleekText(.medium)
                     .multilineTextAlignment(.center)
             }
-            
+
             NavigationLink {
-                OnBoarding2()
+                OnBoarding4()
             } label: {
                 Text("Next")
                     .font(.customFont(name: configModel.font, size: 24, weight: .bold))
@@ -54,6 +62,8 @@ struct OnBoarding1: View {
 }
 
 #Preview {
-    OnBoarding1()
-        .environmentObject(Config())
+    NavigationStack {
+        OnBoarding3()
+            .environmentObject(Config())
+    }
 }

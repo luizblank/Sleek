@@ -47,8 +47,9 @@ struct ItemView: View {
                             .frame(width: 36, height: 36)
                     }
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
-            
+
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     withAnimation(.spring(duration: 0.5)) {
@@ -61,7 +62,9 @@ struct ItemView: View {
                         .rotationEffect(itemEditMode ? Angle(degrees: 360) : Angle(degrees: 0))
                 }
             }
+            .sharedBackgroundVisibility(.hidden)
         }
+        .toolbarBackground(.hidden, for: .navigationBar)
         .dismissKeyboardToolbar()
     }
 }

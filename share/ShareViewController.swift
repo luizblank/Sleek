@@ -6,8 +6,14 @@ import UniformTypeIdentifiers
 class ShareViewController: UIViewController {
 
     private let appGroupID = "group.luiz.dev.sleek"
-    
-    private var foundImage: UIImage? {
+
+    private var foundImages: [UIImage] = [] {
+        didSet {
+            updateRootView()
+        }
+    }
+
+    private var isLoading: Bool = true {
         didSet {
             updateRootView()
         }
@@ -20,22 +26,16 @@ class ShareViewController: UIViewController {
 
         view.backgroundColor = .systemBackground
         setupUI()
-        extractImageFromContext()
+        extractImagesFromContext()
     }
 
     private func setupUI() {
-        let swiftUIView = ShareView(
-            image: foundImage,
-            onSave: { [weak self] in self?.saveAndClose() },
-            onCancel: { [weak self] in self?.cancelAndClose() }
-        )
-        
-        let host = UIHostingController(rootView: swiftUIView)
+        let host = UIHostingController(rootView: makeRootView())
         hostingController = host
-        
+
         addChild(host)
         view.addSubview(host.view)
-        
+
         host.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             host.view.topAnchor.constraint(equalTo: view.topAnchor),
@@ -43,70 +43,100 @@ class ShareViewController: UIViewController {
             host.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        
+
         host.didMove(toParent: self)
     }
 
     private func updateRootView() {
-        hostingController?.rootView = ShareView(
-            image: foundImage,
+        hostingController?.rootView = makeRootView()
+    }
+
+    private func makeRootView() -> ShareView {
+        ShareView(
+            images: foundImages,
+            isLoading: isLoading,
             onSave: { [weak self] in self?.saveAndClose() },
             onCancel: { [weak self] in self?.cancelAndClose() }
         )
     }
 
-    private func extractImageFromContext() {
-        guard let items = extensionContext?.inputItems as? [NSExtensionItem] else { return }
+    private func extractImagesFromContext() {
+        guard let inputItems = extensionContext?.inputItems as? [NSExtensionItem] else {
+            isLoading = false
+            return
+        }
 
-        for item in items {
-            guard let attachments = item.attachments else { continue }
+        let providers: [NSItemProvider] = inputItems
+            .compactMap { $0.attachments }
+            .flatMap { $0 }
+            .filter { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }
 
-            if let provider = attachments.first(where: {
-                $0.hasItemConformingToTypeIdentifier(UTType.image.identifier)
-            }) {
-                loadImage(from: provider)
-                return
+        guard !providers.isEmpty else {
+            isLoading = false
+            return
+        }
+
+        let group = DispatchGroup()
+        var collected: [(Int, UIImage)] = []
+        let lock = NSLock()
+
+        for (index, provider) in providers.enumerated() {
+            group.enter()
+            provider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { item, _ in
+                defer { group.leave() }
+
+                let image: UIImage? = {
+                    if let url = item as? URL,
+                       let data = try? Data(contentsOf: url) {
+                        return UIImage(data: data)
+                    }
+                    if let data = item as? Data {
+                        return UIImage(data: data)
+                    }
+                    return item as? UIImage
+                }()
+
+                if let image {
+                    lock.lock()
+                    collected.append((index, image))
+                    lock.unlock()
+                }
             }
         }
-    }
 
-    private func loadImage(from provider: NSItemProvider) {
-        provider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { [weak self] item, _ in
+        group.notify(queue: .main) { [weak self] in
             guard let self else { return }
-            
-            let image: UIImage? = {
-                if let url = item as? URL,
-                   let data = try? Data(contentsOf: url) {
-                    return UIImage(data: data)
-                }
-                return item as? UIImage
-            }()
-            
-            if let image {
-                DispatchQueue.main.async {
-                    self.foundImage = image
-                }
-            }
+            self.foundImages = collected
+                .sorted { $0.0 < $1.0 }
+                .map { $0.1 }
+            self.isLoading = false
         }
     }
 
     private func saveAndClose() {
         guard
-            let image = foundImage,
-            let data = image.jpegData(compressionQuality: 1.0),
+            !foundImages.isEmpty,
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupID
             )
         else { return }
 
-        let fileURL = containerURL.appendingPathComponent("shared_screenshot.data")
+        var savedCount = 0
+        for (index, image) in foundImages.enumerated() {
+            guard let data = image.jpegData(compressionQuality: 1.0) else { continue }
+            let fileURL = containerURL.appendingPathComponent("shared_screenshot_\(index).data")
+            do {
+                try data.write(to: fileURL)
+                savedCount += 1
+            } catch {
+                print("Erro ao salvar imagem \(index): \(error)")
+            }
+        }
 
-        do {
-            try data.write(to: fileURL)
-            UserDefaults(suiteName: appGroupID)?
-                .set(true, forKey: "has_new_shared_image")
-        } catch {
-            print("Erro ao salvar: \(error)")
+        if savedCount > 0 {
+            let defaults = UserDefaults(suiteName: appGroupID)
+            defaults?.set(savedCount, forKey: "shared_image_count")
+            defaults?.set(true, forKey: "has_new_shared_image")
         }
 
         extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
