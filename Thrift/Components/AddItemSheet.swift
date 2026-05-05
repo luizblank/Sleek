@@ -82,6 +82,7 @@ private struct AddItemOption: View {
         .buttonStyle(.plain)
         .accessibilityLabel(text)
         .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Add a new item using this option")
     }
 }
 

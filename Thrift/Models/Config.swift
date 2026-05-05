@@ -17,18 +17,4 @@ class Config: ObservableObject {
     
     @Published var logo: String = UserDefaults.standard.string(forKey: "logo") ?? "horizontalLogo"
     @Published var font: String = UserDefaults.standard.string(forKey: "font") ?? "Antonio"
-    
-    func resetConfig() {
-        backgroundColor = Color(hex: "#e55381")
-        backgroundImage = nil
-        strokeColor = Color(hex: "#000000")
-        textColor = Color(hex: "#ffffff")
-        logo = "horizontalLogo"
-        font = "Antonio"
-        
-        if let bundleID = Bundle.main.bundleIdentifier {
-            UserDefaults.standard.removePersistentDomain(forName: bundleID)
-            UserDefaults.standard.synchronize()
-        }
-    }
 }

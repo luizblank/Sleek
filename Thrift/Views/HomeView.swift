@@ -29,17 +29,24 @@ struct HomeView: View {
     @State private var pickedPhotos: [PhotosPickerItem] = []
     @State private var containerSize: CGSize = .zero
 
-    @Query(filter: #Predicate<Item> { !$0.isPurchased }, sort: \Item.wasCreated, order: .reverse) var items: [Item]
-    
+    @Query(
+        filter: #Predicate<Item> { !$0.isPurchased },
+        sort: [SortDescriptor(\Item.wasCreated, order: .reverse)]
+    ) var items: [Item]
+
+    private var sortedItems: [Item] {
+        items.sorted { $0.isFavorite && !$1.isFavorite }
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
                 VStack {
-                    if items.isEmpty {
+                    if sortedItems.isEmpty {
                         Text("What items do you want?")
                             .sleekText(.medium)
                     } else {
-                        let filteredItems = items.filter { item in
+                        let filteredItems = sortedItems.filter { item in
                             filteredCategories.allSatisfy { item.categories.contains($0) }
                         }
                         ItemsListView(listTitle: String(localized: "I want to buy:"), editMode: $editMode, filteredItems: filteredItems)

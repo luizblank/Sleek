@@ -17,13 +17,13 @@ struct FontPicker: View {
                     .font(.customFont(name: font.rawValue, size: 20))
                     .foregroundStyle(.white)
                     .stroke(.black)
-                    .tag(font)
+                    .tag(font.rawValue)
             }
         }
         .accessibilityLabel("Font picker")
         .accessibilityHint("Select a font you like for your app")
-        .accessibilityInputLabels(AppFont.allCases.map(\.rawValue))
-        .accessibilityValue(configModel.font) // por algum motivo isso aqui nao funciona
+        .accessibilityInputLabels(AppFont.allCases.map(\.displayName))
+        .accessibilityValue(AppFont(rawValue: configModel.font)?.displayName ?? configModel.font)
         .pickerStyle(.wheel)
         .frame(height: 84)
         .onChange(of: configModel.font) { _, newValue in

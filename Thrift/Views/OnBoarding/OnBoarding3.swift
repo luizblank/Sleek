@@ -26,6 +26,7 @@ struct OnBoarding3: View {
                     .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: wiggle)
                     .padding(.bottom, 8)
                     .onAppear { wiggle = true }
+                    .accessibilityHidden(true)
 
                 Text("Edit mode")
                     .sleekText(.large)
@@ -48,6 +49,9 @@ struct OnBoarding3: View {
                     .padding(.horizontal)
                     .stroke()
             }
+            .accessibilityLabel("Next")
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint("Continue to the next onboarding screen")
             .position(x: containerSize.width / 2, y: containerSize.height * 0.85)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -16,10 +16,10 @@ struct ItemView: View {
     @State private var sheetIsPresented: Bool = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            ItemImage(item: $item, itemEditMode: $itemEditMode)
-            
-            ScrollView {
+        ScrollView {
+            VStack(spacing: 16) {
+                ItemImage(item: $item, itemEditMode: $itemEditMode)
+
                 VStack(alignment: .leading, spacing: 24) {
                     ItemHeaderView(item: $item, itemEditMode: $itemEditMode)
                     NotesView(item: $item, itemEditMode: $itemEditMode)
@@ -28,10 +28,12 @@ struct ItemView: View {
                 }
                 .padding(.horizontal, 20)
             }
+            .padding(.bottom, 32)
         }
+        .scrollDismissesKeyboard(.interactively)
         .padding(.horizontal, 6)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(configModel.backgroundColor)
+        .background(configModel.backgroundColor.ignoresSafeArea())
         .navigationBarBackButtonHidden()
         .sheet(isPresented: $sheetIsPresented) {
             CategoriesForm(item: $item)
@@ -46,6 +48,10 @@ struct ItemView: View {
                             .sleekText(weight: .bold)
                             .frame(width: 36, height: 36)
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Close")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Click here to go back")
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -54,6 +60,9 @@ struct ItemView: View {
                 Button {
                     withAnimation(.spring(duration: 0.5)) {
                         itemEditMode.toggle()
+                        if !itemEditMode {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
                     }
                 } label: {
                     Image(systemName: itemEditMode ? "pencil.slash" : "pencil")
@@ -61,6 +70,10 @@ struct ItemView: View {
                         .frame(width: 36, height: 36)
                         .rotationEffect(itemEditMode ? Angle(degrees: 360) : Angle(degrees: 0))
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(itemEditMode ? "Stop editing item" : "Edit item")
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint(itemEditMode ? "Click here to stop editing this item" : "Click here to edit this item")
             }
             .sharedBackgroundVisibility(.hidden)
         }

@@ -29,6 +29,9 @@ struct CategoriesView: View {
                             .sleekText(.medium, weight: .bold)
                             .frame(width: 40, height: 40)
                     }
+                    .accessibilityLabel("Add categories")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Open the form to add new categories")
                 }
             }
             
@@ -53,6 +56,10 @@ struct CategoriesView: View {
                                     Image(systemName: "xmark")
                                         .sleekText(disableStroke: true)
                                 }
+                                .accessibilityLabel(String(localized: "Remove category"))
+                                .accessibilityValue(category)
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityHint("Remove this category from the item")
                             }
                         }
                         .frame(width: 80, height: 24)

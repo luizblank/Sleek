@@ -56,26 +56,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		415CDFAE2EDDCCF4005E1894 /* Exceptions for "share" folder in "share" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 415CDF9F2EDDCCF4005E1894 /* share */;
-		};
-		4161391F2EE9997C001144A3 /* Exceptions for "Thrift" folder in "share" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Localizable.xcstrings,
-			);
-			target = 415CDF9F2EDDCCF4005E1894 /* share */;
-		};
-		41F861582E96AF8E00BA8446 /* Exceptions for "Thrift" folder in "Thrift" target */ = {
+		41B4239E2FAA2B7C00F3C1E4 /* Exceptions for "Thrift" folder in "Thrift" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = 41F8608D2E95566300BA8446 /* Thrift */;
+		};
+		41B4239F2FAA2B8000F3C1E4 /* Exceptions for "share" folder in "share" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 415CDF9F2EDDCCF4005E1894 /* share */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -83,7 +76,7 @@
 		415CDFA12EDDCCF4005E1894 /* share */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				415CDFAE2EDDCCF4005E1894 /* Exceptions for "share" folder in "share" target */,
+				41B4239F2FAA2B8000F3C1E4 /* Exceptions for "share" folder in "share" target */,
 			);
 			path = share;
 			sourceTree = "<group>";
@@ -91,8 +84,7 @@
 		41F860902E95566300BA8446 /* Thrift */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				41F861582E96AF8E00BA8446 /* Exceptions for "Thrift" folder in "Thrift" target */,
-				4161391F2EE9997C001144A3 /* Exceptions for "Thrift" folder in "share" target */,
+				41B4239E2FAA2B7C00F3C1E4 /* Exceptions for "Thrift" folder in "Thrift" target */,
 			);
 			path = Thrift;
 			sourceTree = "<group>";
@@ -381,7 +373,7 @@
 				INFOPLIST_FILE = share/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = share;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -408,7 +400,7 @@
 				INFOPLIST_FILE = share/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = share;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -557,11 +549,11 @@
 				DEVELOPMENT_TEAM = UZSZV52P59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Thrift/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sleek;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Sleek uses the camera so you can snap a photo of an item to add it to your wishlist.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Sleek lets you pick photos from your library to add items to your wishlist.";
+				INFOPLIST_FILE = Thrift/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -597,11 +589,11 @@
 				DEVELOPMENT_TEAM = UZSZV52P59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Thrift/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sleek;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Sleek uses the camera so you can snap a photo of an item to add it to your wishlist.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Sleek lets you pick photos from your library to add items to your wishlist.";
+				INFOPLIST_FILE = Thrift/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

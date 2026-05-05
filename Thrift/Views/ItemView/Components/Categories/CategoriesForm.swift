@@ -26,6 +26,8 @@ struct CategoriesForm: View {
                 TextField("", text: $newCategory, prompt: Text("Add a category...").foregroundStyle(.black.opacity(0.7)))
                     .padding(.horizontal)
                     .font(.customFont(name: configModel.font, size: textSizes.normal.rawValue))
+                    .accessibilityLabel("New category")
+                    .accessibilityHint("Type a new category name and submit to add it")
                     .onSubmit {
                         if newCategory.isEmpty { return }
                         withAnimation {
@@ -33,7 +35,7 @@ struct CategoriesForm: View {
                         }
                         newCategory = ""
                     }
-                
+
                 Button {
                     if newCategory.isEmpty || item.categories.contains(newCategory) { return }
                     withAnimation {
@@ -41,13 +43,16 @@ struct CategoriesForm: View {
                     }
                     newCategory = ""
                 } label: {
-                    Image(systemName: "plus") // criar componente
+                    Image(systemName: "plus")
                         .sleekText(weight: .bold)
                         .frame(width: 40, height: 40)
                         .background(configModel.textColor)
                         .clipShape(Capsule())
                         .stroke()
                 }
+                .accessibilityLabel("Add category")
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint("Add the typed category to this item")
             }
             .padding(6)
             .background(.black.opacity(0.05))
@@ -71,7 +76,7 @@ struct CategoriesForm: View {
             }
         }
         .padding()
-        .presentationDetents([.fraction(0.5)])
+        .presentationDetents([.fraction(0.5), .large])
         .presentationDragIndicator(.visible)
     }
 }

@@ -30,6 +30,9 @@ struct LinksView: View {
                             .sleekText(.medium, weight: .bold)
                             .frame(width: 40, height: 40)
                     }
+                    .accessibilityLabel("Add links")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Open the form to add new links")
                 }
             }
             
@@ -60,11 +63,18 @@ struct LinksView: View {
                                         Image(systemName: "xmark")
                                             .sleekText(disableStroke: true)
                                     }
+                                    .accessibilityLabel(String(localized: "Remove link"))
+                                    .accessibilityValue(link)
+                                    .accessibilityAddTraits(.isButton)
+                                    .accessibilityHint("Remove this link from the item")
                                 }
                             }
                             .frame(maxWidth: .infinity)
                             .editModeStyle()
                         }
+                        .accessibilityLabel(link)
+                        .accessibilityAddTraits(.isLink)
+                        .accessibilityHint(itemEditMode ? "Tap the X to remove this link" : "Open this link in your browser")
                     }
                 }
             }

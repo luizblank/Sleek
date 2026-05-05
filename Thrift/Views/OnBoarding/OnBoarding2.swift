@@ -21,6 +21,7 @@ struct OnBoarding2: View {
                     .foregroundStyle(.white)
                     .stroke()
                     .padding(.bottom, 8)
+                    .accessibilityHidden(true)
 
                 Text("Your wardrobe")
                     .sleekText(.large)
@@ -43,6 +44,9 @@ struct OnBoarding2: View {
                     .padding(.horizontal)
                     .stroke()
             }
+            .accessibilityLabel("Next")
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint("Continue to the next onboarding screen")
             .position(x: containerSize.width / 2, y: containerSize.height * 0.85)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

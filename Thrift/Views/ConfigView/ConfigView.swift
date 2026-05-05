@@ -12,22 +12,22 @@ struct ConfigView: View {
     @EnvironmentObject private var configModel: Config
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
-
+    
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
-
+    
     @Query private var allItems: [Item]
-
+    
     @State private var rotate1: Double = 0
     @State private var rotate2: Double = 0
     @State private var showResetItemsAlert: Bool = false
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
                     Text("Settings")
                         .sleekText(.extraLarge, defaultText: true)
-
+                    
                     VStack(alignment: .leading) {
                         Text("Choose your favorite logo:")
                             .sleekText(.medium, defaultText: true)
@@ -58,13 +58,7 @@ struct ConfigView: View {
                         Text("App options")
                             .sleekText(.medium, defaultText: true)
                             .padding(.bottom, 4)
-                        ResetButton(String(localized: "Reset settings to default")) {
-                            configModel.resetConfig()
-                        }
-                        .accessibilityLabel("Reset settings button")
-                        .accessibilityAddTraits(.isButton)
-                        .accessibilityHint("Click here to reset all your settings to their default values")
-
+                        
                         ResetButton(String(localized: "Reset onboarding")) {
                             hasSeenOnboarding = false
                             dismiss()
@@ -72,7 +66,30 @@ struct ConfigView: View {
                         .accessibilityLabel("Reset onboarding button")
                         .accessibilityAddTraits(.isButton)
                         .accessibilityHint("Click here to see the welcome tour again")
-
+                        
+                        ResetButton(String(localized: "Reset customizations")) {
+                            configModel.backgroundColor = Color(hex: "#e55381")
+                            UserDefaults.standard.set("#e55381", forKey: "backgroundColor")
+                            
+                            configModel.backgroundImage = nil
+                            UserDefaults.standard.removeObject(forKey: "backgroundImage")
+                            
+                            configModel.strokeColor = Color(hex: "#000000")
+                            UserDefaults.standard.set("#000000", forKey: "strokeColor")
+                            
+                            configModel.textColor = Color(hex: "#ffffff")
+                            UserDefaults.standard.set("#ffffff", forKey: "textColor")
+                            
+                            configModel.logo = "horizontalLogo"
+                            UserDefaults.standard.set("horizontalLogo", forKey: "logo")
+                            
+                            configModel.font = "Antonio"
+                            UserDefaults.standard.set("Antonio", forKey: "font")
+                        }
+                        .accessibilityLabel("Reset customizations button")
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityHint("Click here to reset colors, font, and background to their default values")
+                        
                         ResetButton(String(localized: "Reset all items")) {
                             showResetItemsAlert = true
                         }

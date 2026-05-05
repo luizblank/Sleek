@@ -24,6 +24,8 @@ struct NotesView: View {
                     .sleekText(disableStroke: true)
                     .editModeStyle()
                     .frame(minHeight: 50)
+                    .accessibilityLabel("Notes")
+                    .accessibilityHint("Add notes about this item")
             }
         }
     }

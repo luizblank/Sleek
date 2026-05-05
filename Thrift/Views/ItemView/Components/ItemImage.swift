@@ -25,10 +25,17 @@ struct ItemImage: View {
             .frame(height: 300)
             .padding(.top, 32)
             .stroke()
-            .rotation3DEffect(Angle(degrees: itemAngle), axis: (x: 0, y: 1, z: 1), anchor: .center)
+            .rotation3DEffect(Angle(degrees: itemEditMode ? 0 : itemAngle), axis: (x: 0, y: 1, z: 1), anchor: .center)
             .onAppear {
-                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                    itemAngle = -itemAngle
+                startWobblingIfNeeded()
+            }
+            .onChange(of: itemEditMode) { _, isEditing in
+                if isEditing {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        itemAngle = 0
+                    }
+                } else {
+                    startWobblingIfNeeded()
                 }
             }
             .overlay(alignment: .center) {
@@ -46,6 +53,9 @@ struct ItemImage: View {
                             .clipShape(Circle())
                             .stroke()
                     }
+                    .accessibilityLabel("Change item photo")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Open your photo library to choose a new photo for this item")
                     .task(id: selectedPhoto) {
                         do {
                             guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else {
@@ -68,9 +78,16 @@ struct ItemImage: View {
             }
             .overlay(alignment: .bottomTrailing) {
                 PriceTag(item: $item, itemEditMode: $itemEditMode)
-                    .rotationEffect(Angle(degrees: -16))
+                    .rotationEffect(Angle(degrees: itemEditMode ? 0 : -16))
                     .offset(x: -10, y: -40)
             }
+    }
+
+    private func startWobblingIfNeeded() {
+        guard !itemEditMode else { return }
+        withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+            itemAngle = -itemAngle
+        }
     }
 }
 

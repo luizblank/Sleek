@@ -30,6 +30,7 @@ struct BackgroundPicker: View {
             if configModel.backgroundImage != nil {
                 Button {
                     configModel.backgroundImage = nil
+                    UserDefaults.standard.removeObject(forKey: "backgroundImage")
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 20, weight: .bold))
@@ -38,9 +39,6 @@ struct BackgroundPicker: View {
                         .background(.white)
                         .clipShape(Circle())
                         .stroke(.black)
-                }
-                .onChange(of: configModel.backgroundImage) { _, newValue in
-                    UserDefaults.standard.set(newValue, forKey: "backgroundImage")
                 }
                 .accessibilityLabel("Remove background image")
                 .accessibilityAddTraits(.isButton)

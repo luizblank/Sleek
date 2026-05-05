@@ -9,7 +9,7 @@ import SwiftUI
 
 extension Font {
     public static func antonio(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        return Font.custom("Antonio", size: size).weight(weight)
+        return Font.custom("Antonio-Regular", size: size).weight(weight)
     }
     
     public static func customFont(name: String, size: CGFloat, weight: Font.Weight = .regular) -> Font {
@@ -18,18 +18,18 @@ extension Font {
 }
 
 enum AppFont: String, CaseIterable, Identifiable {
-    case anton = "Anton"
+    case anton = "Anton-Regular"
     case bitcount = "BitcountPropSingle-Regular"
     case fjallaone = "FjallaOne-Regular"
-    case leaguespartan = "LeagueSpartan-Regular"
-    case nabla = "Nabla"
-    case orbitron = "Orbitron"
-    case antonio = "Antonio"
-    case pacifico = "Pacifico"
+    case leaguespartan = "LeagueSpartan-Thin"
+    case nabla = "Nabla-Regular"
+    case orbitron = "Orbitron-Regular"
+    case antonio = "Antonio-Regular"
+    case pacifico = "Pacifico-Regular"
     case permanentmarker = "PermanentMarker-Regular"
     case pixelify = "PixelifySans-Regular"
-    case playwritecz = "PlayWriteCZ-Regular"
-    case tiny5 = "Tiny5"
+    case playwritecz = "PlaywriteCZ-Regular"
+    case tiny5 = "Tiny5-Regular"
     
     // System
     case helvetica = "Helvetica Neue"

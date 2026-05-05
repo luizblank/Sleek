@@ -31,7 +31,8 @@ struct ToolbarItems: ToolbarContent {
                         .accessibilityAddTraits(.isButton)
                         .accessibilityHint("Open the filter to select the registered categories")
                 }
-
+                .buttonStyle(.plain)
+                
                 NavigationLink {
                     ConfigView()
                 } label: {
@@ -42,6 +43,7 @@ struct ToolbarItems: ToolbarContent {
                         .accessibilityAddTraits(.isButton)
                         .accessibilityHint("Open the settings to change the app appearance")
                 }
+                .buttonStyle(.plain)
             }
         }
         .sharedBackgroundVisibility(.hidden)

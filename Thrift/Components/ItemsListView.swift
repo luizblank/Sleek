@@ -100,7 +100,7 @@ private struct ItemTile: View {
                     }
             }
         }
-        .accessibilityLabel(item.name == "" ? String(localized: "Default item") : item.name)
+        .accessibilityLabel(Text(item.name.isEmpty ? String(localized: "Default item") : item.name))
         .accessibilityAddTraits(.isButton)
         .accessibilityHint("Click here to open this item")
         .rotationEffect(.degrees(wiggleAngle), anchor: .center)

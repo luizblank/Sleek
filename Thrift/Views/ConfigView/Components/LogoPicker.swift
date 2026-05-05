@@ -29,7 +29,7 @@ struct LogoPicker: View {
                 if configModel.logo != "" {
                     Image(configModel.logo)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
                         .frame(height: 40)
                         .fixedSize(horizontal: true, vertical: false)
                 } else {

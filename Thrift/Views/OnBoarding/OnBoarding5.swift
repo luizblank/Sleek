@@ -1,38 +1,43 @@
 //
-//  OnBoarding.swift
+//  OnBoarding5.swift
 //  Thrift
 //
-//  Created by Luiz Antonio Rosa Cardoso on 15/10/25.
+//  Created by Luiz Antonio Rosa Cardoso on 01/05/26.
 //
 
 import SwiftUI
 
-struct OnBoarding1: View {
+struct OnBoarding5: View {
     @EnvironmentObject var configModel: Config
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
     @State private var containerSize: CGSize = .zero
 
     var body: some View {
         ZStack {
-            VStack(alignment: .center) {
-                Image(.blankLogo)
+            VStack(alignment: .center, spacing: 16) {
+                Image(systemName: "square.and.arrow.up.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 150, height: 130)
+                    .frame(width: 100, height: 100)
+                    .foregroundStyle(.white)
+                    .stroke()
+                    .padding(.bottom, 8)
                     .accessibilityHidden(true)
 
-                Text("Welcome to Sleek!")
+                Text(String(localized: "Share to Sleek"))
                     .sleekText(.large)
-                Text("The stylish home\nfor everything you want.")
+                    .multilineTextAlignment(.center)
+                Text(String(localized: "Found something you like?\nShare an image directly to\nSleek from other apps."))
                     .sleekText(.medium)
                     .multilineTextAlignment(.center)
             }
 
-            NavigationLink {
-                OnBoarding2()
+            Button {
+                hasSeenOnboarding = true
             } label: {
-                Text("Next")
+                Text(String(localized: "Get started"))
                     .font(.customFont(name: configModel.font, size: 24, weight: .bold))
-                    .frame(width: 140, height: 30)
+                    .frame(width: 180, height: 30)
                     .foregroundStyle(.black)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 10)
@@ -41,9 +46,9 @@ struct OnBoarding1: View {
                     .padding(.horizontal)
                     .stroke()
             }
-            .accessibilityLabel("Next")
+            .accessibilityLabel(String(localized: "Get started"))
             .accessibilityAddTraits(.isButton)
-            .accessibilityHint("Continue to the next onboarding screen")
+            .accessibilityHint(String(localized: "Finish the onboarding and start using Sleek"))
             .position(x: containerSize.width / 2, y: containerSize.height * 0.85)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -58,6 +63,8 @@ struct OnBoarding1: View {
 }
 
 #Preview {
-    OnBoarding1()
-        .environmentObject(Config())
+    NavigationStack {
+        OnBoarding5()
+            .environmentObject(Config())
+    }
 }

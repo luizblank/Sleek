@@ -31,6 +31,7 @@ struct OnBoarding4: View {
                         .stroke()
                 }
                 .padding(.bottom, 8)
+                .accessibilityHidden(true)
 
                 Text("Drop it like it's hot")
                     .sleekText(.large)
@@ -40,12 +41,12 @@ struct OnBoarding4: View {
                     .multilineTextAlignment(.center)
             }
 
-            Button {
-                hasSeenOnboarding = true
+            NavigationLink {
+                OnBoarding5()
             } label: {
-                Text("Get started")
+                Text("Next")
                     .font(.customFont(name: configModel.font, size: 24, weight: .bold))
-                    .frame(width: 180, height: 30)
+                    .frame(width: 140, height: 30)
                     .foregroundStyle(.black)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 10)
@@ -54,6 +55,9 @@ struct OnBoarding4: View {
                     .padding(.horizontal)
                     .stroke()
             }
+            .accessibilityLabel(String(localized: "Next"))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint(String(localized: "Continue to the next onboarding screen"))
             .position(x: containerSize.width / 2, y: containerSize.height * 0.85)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

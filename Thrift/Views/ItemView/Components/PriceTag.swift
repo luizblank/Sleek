@@ -36,14 +36,19 @@ struct PriceTag: View {
                     .background(configModel.textColor)
                     .clipShape(Capsule())
                     .stroke()
+                    .accessibilityLabel("Price")
+                    .accessibilityValue(item.price.formatted(.currency(code: Locale.current.currency?.identifier ?? "BRL")))
             } else {
                 HStack(spacing: 4) {
                     TextField("", text: $price)
                         .sleekText(.large, weight: .bold)
+                        .tint(configModel.strokeColor)
                         .padding(.leading, 12)
                         .fixedSize()
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
+                        .accessibilityLabel("Price")
+                        .accessibilityHint("Type the price for this item")
                         .onChange(of: price) { _, newValue in
                             guard !newValue.isEmpty,
                                   let parsed = Self.priceFormatter.number(from: newValue)?.doubleValue,
@@ -51,7 +56,8 @@ struct PriceTag: View {
                             item.price = parsed
                         }
                     Image(systemName: "pencil")
-                        .sleekText(.large)
+                        .sleekText(.large, weight: .bold)
+                        .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 4)
                 .background(configModel.textColor)
@@ -59,18 +65,27 @@ struct PriceTag: View {
                 .stroke()
             }
         }
-        .scaleEffect(priceTagScale)
+        .scaleEffect(itemEditMode ? 1.0 : priceTagScale)
         .onAppear {
             price = priceString(from: item.price)
-
-            withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
-                priceTagScale = 1.15
-            }
+            startBreathingIfNeeded()
         }
         .onChange(of: itemEditMode) { _, isEditing in
             if isEditing {
                 price = priceString(from: item.price)
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    priceTagScale = 1.0
+                }
+            } else {
+                startBreathingIfNeeded()
             }
+        }
+    }
+
+    private func startBreathingIfNeeded() {
+        guard !itemEditMode else { return }
+        withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
+            priceTagScale = 1.15
         }
     }
 }

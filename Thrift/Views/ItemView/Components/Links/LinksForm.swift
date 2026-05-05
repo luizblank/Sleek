@@ -28,6 +28,8 @@ struct LinksForm: View {
                     .padding(.horizontal)
                     .foregroundStyle(.black)
                     .font(.customFont(name: configModel.font, size: textSizes.normal.rawValue))
+                    .accessibilityLabel("New link")
+                    .accessibilityHint("Type a URL and submit to add it")
                     .onSubmit {
                         if newLink.isEmpty { return }
                         withAnimation {
@@ -35,7 +37,7 @@ struct LinksForm: View {
                         }
                         newLink = ""
                     }
-                
+
                 Button {
                     if newLink.isEmpty || item.links.contains(newLink) { return }
                     withAnimation {
@@ -50,6 +52,9 @@ struct LinksForm: View {
                         .clipShape(Capsule())
                         .stroke()
                 }
+                .accessibilityLabel("Add link")
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint("Add the typed link to this item")
             }
             .padding(4)
             .background(.black.opacity(0.1))
@@ -74,7 +79,7 @@ struct LinksForm: View {
             }
         }
         .padding()
-        .presentationDetents([.fraction(0.5)])
+        .presentationDetents([.fraction(0.5), .large])
         .presentationDragIndicator(.visible)
         .dismissKeyboardToolbar()
     }
