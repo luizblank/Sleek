@@ -17,10 +17,13 @@ struct RouterView: View {
                 OnBoarding1()
             }
         } else {
-            switch selectedView {
-            case 0: HomeView(selectedView: $selectedView)
-            case 1: PurchasedView(selectedView: $selectedView)
-            default: HomeView(selectedView: $selectedView)
+            ZStack {
+                HomeView(selectedView: $selectedView)
+                    .opacity(selectedView == 0 ? 1 : 0)
+                    .allowsHitTesting(selectedView == 0)
+                PurchasedView(selectedView: $selectedView)
+                    .opacity(selectedView == 1 ? 1 : 0)
+                    .allowsHitTesting(selectedView == 1)
             }
         }
     }

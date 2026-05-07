@@ -14,6 +14,11 @@ struct PriceTag: View {
 
     @State var price: String = ""
     @State var priceTagScale = 1.0
+    @FocusState private var priceFieldFocused: Bool
+
+    private var currencySymbol: String {
+        Locale.current.currencySymbol ?? "R$"
+    }
 
     private static let priceFormatter: NumberFormatter = {
         let f = NumberFormatter()
@@ -40,13 +45,16 @@ struct PriceTag: View {
                     .accessibilityValue(item.price.formatted(.currency(code: Locale.current.currency?.identifier ?? "BRL")))
             } else {
                 HStack(spacing: 4) {
+                    Text(currencySymbol)
+                        .sleekText(.large, weight: .bold)
+                        .padding(.leading, 12)
                     TextField("", text: $price)
                         .sleekText(.large, weight: .bold)
                         .tint(configModel.strokeColor)
-                        .padding(.leading, 12)
                         .fixedSize()
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
+                        .focused($priceFieldFocused)
                         .accessibilityLabel("Price")
                         .accessibilityHint("Type the price for this item")
                         .onChange(of: price) { _, newValue in
@@ -55,9 +63,16 @@ struct PriceTag: View {
                                   parsed < 100_000_000 else { return }
                             item.price = parsed
                         }
-                    Image(systemName: "pencil")
-                        .sleekText(.large, weight: .bold)
-                        .accessibilityHidden(true)
+                    Button {
+                        priceFieldFocused = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .sleekText(.large, weight: .bold)
+                            .padding(.trailing, 4)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Edit price")
+                    .accessibilityHint("Open the keyboard to edit the price")
                 }
                 .padding(.horizontal, 4)
                 .background(configModel.textColor)

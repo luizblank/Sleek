@@ -19,8 +19,8 @@ struct HomeView: View {
     @Binding var selectedView: Int
 
     @State private var editMode: Bool = false
-    @State private var purchasedTargeted: Bool = false
-    @State private var trashTargeted: Bool = false
+    @State private var selectedItemIDs: Set<PersistentIdentifier> = []
+    @State private var showDeleteConfirm: Bool = false
     @State private var showFilterSheet: Bool = false
     @State private var filteredCategories: [String] = []
     @State private var showAddDialog: Bool = false
@@ -28,6 +28,7 @@ struct HomeView: View {
     @State private var showPhotoPicker: Bool = false
     @State private var pickedPhotos: [PhotosPickerItem] = []
     @State private var containerSize: CGSize = .zero
+    @State private var newlyCreatedItem: Item?
 
     @Query(
         filter: #Predicate<Item> { !$0.isPurchased },
@@ -49,7 +50,7 @@ struct HomeView: View {
                         let filteredItems = sortedItems.filter { item in
                             filteredCategories.allSatisfy { item.categories.contains($0) }
                         }
-                        ItemsListView(listTitle: String(localized: "I want to buy:"), editMode: $editMode, filteredItems: filteredItems)
+                        ItemsListView(listTitle: String(localized: "I want to buy:"), editMode: $editMode, selectedItemIDs: $selectedItemIDs, filteredItems: filteredItems)
                     }
                 }
                 
@@ -79,31 +80,24 @@ struct HomeView: View {
                 .offset(y: editMode ? 300 : 0)
                 
                 HStack {
-                    EditModeButton(icon: "basket.fill", text: String(localized: "Purchased"))
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityHidden(!editMode)
-                        .accessibilityLabel("Drop location for purchased items")
-                        .accessibilityHint("Drop an item here to add it to your wardrobe")
-                        .scaleEffect(purchasedTargeted ? 1.2 : 1.0)
-                        .dropDestination(for: ItemTransfer.self) { droppedItems, location in
-                            guard let droppedItem = droppedItems.first else { return false }
+                    Button {
+                        markSelectedAsPurchased()
+                    } label: {
+                        EditModeButton(icon: "basket.fill", text: String(localized: "Purchased"))
+                    }
+                    .disabled(selectedItemIDs.isEmpty)
+                    .opacity(selectedItemIDs.isEmpty ? 0.5 : 1.0)
+                    .accessibilityHidden(!editMode)
+                    .accessibilityLabel("Mark selected as purchased")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Move the selected items to your wardrobe")
 
-                            if let index = items.firstIndex(where: { $0.id == droppedItem.id }) {
-                                items[index].isPurchased = true
-                            }
-
-                            return true
-                        } isTargeted: { isTargeted in
-                            withAnimation(.spring) {
-                                purchasedTargeted = isTargeted
-                            }
-                        }
-                    
                     Spacer()
-                    
+
                     Button {
                         withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
                             editMode = false
+                            selectedItemIDs.removeAll()
                         }
                     } label: {
                         EditModeButton(icon: "xmark", text: String(localized: "Cancel"))
@@ -112,34 +106,20 @@ struct HomeView: View {
                     .accessibilityLabel("Close edit mode")
                     .accessibilityAddTraits(.isButton)
                     .accessibilityHint("Click here to close edit mode")
-                    
+
                     Spacer()
-                    
-                    EditModeButton(icon: "trash.fill", text: String(localized: "Delete"))
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityHidden(!editMode)
-                        .accessibilityLabel("Drop location to delete items")
-                        .accessibilityHint("Drop an item here to delete it from your wishlist")
-                        .scaleEffect(trashTargeted ? 1.2 : 1.0)
-                        .dropDestination(for: ItemTransfer.self) { droppedItems, location in
-                            guard let droppedItem = droppedItems.first else { return false }
 
-                            if let index = items.firstIndex(where: { $0.id == droppedItem.id }) {
-                                modelContext.delete(items[index])
-                            }
-
-                            do {
-                                try modelContext.save()
-                            } catch {
-                                print("Error saving context after deletion: \(error)")
-                            }
-
-                            return true
-                        } isTargeted: { isTargeted in
-                            withAnimation(.spring) {
-                                trashTargeted = isTargeted
-                            }
-                        }
+                    Button {
+                        showDeleteConfirm = true
+                    } label: {
+                        EditModeButton(icon: "trash.fill", text: String(localized: "Delete"))
+                    }
+                    .disabled(selectedItemIDs.isEmpty)
+                    .opacity(selectedItemIDs.isEmpty ? 0.5 : 1.0)
+                    .accessibilityHidden(!editMode)
+                    .accessibilityLabel("Delete selected")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Delete the selected items from your wishlist")
                 }
                 .position(x: containerSize.width / 2, y: containerSize.height - 100)
                 .offset(y: editMode ? 0 : 300)
@@ -155,6 +135,15 @@ struct HomeView: View {
             .toolbarBackground(.hidden, for: .navigationBar)
             .sheet(isPresented: $showFilterSheet) {
                 FilterView(categories: ItemUtils.getCategories(from: items), filteredCategories: $filteredCategories)
+            }
+            .alert(
+                deleteConfirmTitle,
+                isPresented: $showDeleteConfirm
+            ) {
+                Button(String(localized: "Cancel"), role: .cancel) {}
+                Button(String(localized: "Delete"), role: .destructive) { deleteSelected() }
+            } message: {
+                Text("This action cannot be undone.")
             }
             .sheet(isPresented: $showAddDialog) {
                 AddItemSheet(
@@ -189,6 +178,38 @@ struct HomeView: View {
             .onAppear {
                 checkForImportedImage()
             }
+            .navigationDestination(item: $newlyCreatedItem) { item in
+                ItemView(item: .constant(item), startInEditMode: true)
+            }
+        }
+    }
+
+    private var deleteConfirmTitle: String {
+        if selectedItemIDs.count == 1 {
+            return String(localized: "Delete this item?")
+        }
+        return String(localized: "Delete \(selectedItemIDs.count) items?")
+    }
+
+    private func markSelectedAsPurchased() {
+        for item in items where selectedItemIDs.contains(item.persistentModelID) {
+            item.isPurchased = true
+        }
+        try? modelContext.save()
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            selectedItemIDs.removeAll()
+            editMode = false
+        }
+    }
+
+    private func deleteSelected() {
+        for item in items where selectedItemIDs.contains(item.persistentModelID) {
+            modelContext.delete(item)
+        }
+        try? modelContext.save()
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            selectedItemIDs.removeAll()
+            editMode = false
         }
     }
 
@@ -197,6 +218,7 @@ struct HomeView: View {
         item.name = ItemUtils.defaultName(for: item)
         modelContext.insert(item)
         bumpReviewIfNeeded()
+        newlyCreatedItem = item
     }
 
     private func bumpReviewIfNeeded() {
@@ -224,6 +246,7 @@ struct HomeView: View {
             modelContext.insert(item)
             try? modelContext.save()
             bumpReviewIfNeeded()
+            newlyCreatedItem = item
         }
     }
 

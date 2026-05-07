@@ -115,19 +115,34 @@ struct ConfigView: View {
                 Text("This will permanently delete every item in your wishlist and wardrobe. This can't be undone.")
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .foregroundStyle(.white)
-                            .font(.system(size: 24))
-                            .stroke(.black)
-                            .frame(width: 36, height: 36)
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundStyle(.white)
+                                .font(.system(size: 24))
+                                .stroke(.black)
+                                .frame(width: 36, height: 36)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                    .sharedBackgroundVisibility(.hidden)
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundStyle(.white)
+                                .font(.system(size: 24))
+                                .stroke(.black)
+                                .frame(width: 36, height: 36)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .sharedBackgroundVisibility(.hidden)
             }
             .toolbarBackground(.hidden, for: .navigationBar)
         }

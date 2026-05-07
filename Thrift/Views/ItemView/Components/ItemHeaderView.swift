@@ -38,7 +38,7 @@ struct ItemHeaderView: View {
                         item.isFavorite.toggle()
                     }
                 } label: {
-                    Image(systemName: item.isFavorite ? "star.fill" :"star.slash.fill")
+                    Image(systemName: item.isFavorite ? "star.fill" : "star")
                         .sleekText(.large, weight: .bold)
                         .rotationEffect(item.isFavorite ? Angle(degrees: 360) : Angle(degrees: 0))
                 }

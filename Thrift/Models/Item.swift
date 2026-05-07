@@ -47,6 +47,7 @@ class Item: Identifiable {
     }
     
     init(imageData: Data = Data(), name: String = "", desc: String = "", price: Double = 0.0, links: [String] = [], categories: [String] = [], isFavorite: Bool = false, isPurchased: Bool = false) {
+        self.id = UUID()
         self.imageData = imageData
         self.name = name
         self.desc = desc

@@ -16,8 +16,8 @@ struct PurchasedView: View {
     @Binding var selectedView: Int
 
     @State private var editMode: Bool = false
-    @State private var wishlistTargeted: Bool = false
-    @State private var trashTargeted: Bool = false
+    @State private var selectedItemIDs: Set<PersistentIdentifier> = []
+    @State private var showDeleteConfirm: Bool = false
     @State private var showFilterSheet: Bool = false
     @State private var filteredCategories: [String] = []
     @State private var containerSize: CGSize = .zero
@@ -42,7 +42,7 @@ struct PurchasedView: View {
                         let filteredItems = sortedItems.filter { item in
                             filteredCategories.allSatisfy { item.categories.contains($0) }
                         }
-                        ItemsListView(listTitle: String(localized: "My sleek items:"), editMode: $editMode, filteredItems: filteredItems)
+                        ItemsListView(listTitle: String(localized: "My sleek items:"), editMode: $editMode, selectedItemIDs: $selectedItemIDs, filteredItems: filteredItems)
                     }
                 }
 
@@ -63,31 +63,24 @@ struct PurchasedView: View {
                 .offset(y: editMode ? 300 : 0)
 
                 HStack {
-                    EditModeButton(icon: "list.bullet.rectangle.portrait.fill", text: String(localized: "Wishlist"))
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityHidden(!editMode)
-                        .accessibilityLabel("Drop location to move items back to wishlist")
-                        .accessibilityHint("Drop an item here to move it back to your wishlist")
-                        .scaleEffect(wishlistTargeted ? 1.2 : 1.0)
-                        .dropDestination(for: ItemTransfer.self) { droppedItems, location in
-                            guard let droppedItem = droppedItems.first else { return false }
-
-                            if let index = items.firstIndex(where: { $0.id == droppedItem.id }) {
-                                items[index].isPurchased = false
-                            }
-
-                            return true
-                        } isTargeted: { isTargeted in
-                            withAnimation(.spring) {
-                                wishlistTargeted = isTargeted
-                            }
-                        }
+                    Button {
+                        moveSelectedToWishlist()
+                    } label: {
+                        EditModeButton(icon: "list.bullet.rectangle.portrait.fill", text: String(localized: "Wishlist"))
+                    }
+                    .disabled(selectedItemIDs.isEmpty)
+                    .opacity(selectedItemIDs.isEmpty ? 0.5 : 1.0)
+                    .accessibilityHidden(!editMode)
+                    .accessibilityLabel("Move selected back to wishlist")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Move the selected items back to your wishlist")
 
                     Spacer()
 
                     Button {
                         withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
                             editMode = false
+                            selectedItemIDs.removeAll()
                         }
                     } label: {
                         EditModeButton(icon: "xmark", text: String(localized: "Cancel"))
@@ -99,31 +92,17 @@ struct PurchasedView: View {
 
                     Spacer()
 
-                    EditModeButton(icon: "trash.fill", text: String(localized: "Delete"))
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityHidden(!editMode)
-                        .accessibilityLabel("Drop location to delete items")
-                        .accessibilityHint("Drop an item here to delete it from your wardrobe")
-                        .scaleEffect(trashTargeted ? 1.2 : 1.0)
-                        .dropDestination(for: ItemTransfer.self) { droppedItems, location in
-                            guard let droppedItem = droppedItems.first else { return false }
-
-                            if let index = items.firstIndex(where: { $0.id == droppedItem.id }) {
-                                modelContext.delete(items[index])
-                            }
-
-                            do {
-                                try modelContext.save()
-                            } catch {
-                                print("Error saving context after deletion: \(error)")
-                            }
-
-                            return true
-                        } isTargeted: { isTargeted in
-                            withAnimation(.spring) {
-                                trashTargeted = isTargeted
-                            }
-                        }
+                    Button {
+                        showDeleteConfirm = true
+                    } label: {
+                        EditModeButton(icon: "trash.fill", text: String(localized: "Delete"))
+                    }
+                    .disabled(selectedItemIDs.isEmpty)
+                    .opacity(selectedItemIDs.isEmpty ? 0.5 : 1.0)
+                    .accessibilityHidden(!editMode)
+                    .accessibilityLabel("Delete selected")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Delete the selected items from your wardrobe")
                 }
                 .position(x: containerSize.width / 2, y: containerSize.height - 100)
                 .offset(y: editMode ? 0 : 300)
@@ -151,6 +130,45 @@ struct PurchasedView: View {
             .sheet(isPresented: $showFilterSheet) {
                 FilterView(categories: ItemUtils.getCategories(from: items), filteredCategories: $filteredCategories)
             }
+            .confirmationDialog(
+                deleteConfirmTitle,
+                isPresented: $showDeleteConfirm,
+                titleVisibility: .visible
+            ) {
+                Button(String(localized: "Delete"), role: .destructive) { deleteSelected() }
+                Button(String(localized: "Cancel"), role: .cancel) {}
+            } message: {
+                Text("This action cannot be undone.")
+            }
+        }
+    }
+
+    private var deleteConfirmTitle: String {
+        if selectedItemIDs.count == 1 {
+            return String(localized: "Delete this item?")
+        }
+        return String(localized: "Delete \(selectedItemIDs.count) items?")
+    }
+
+    private func moveSelectedToWishlist() {
+        for item in items where selectedItemIDs.contains(item.persistentModelID) {
+            item.isPurchased = false
+        }
+        try? modelContext.save()
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            selectedItemIDs.removeAll()
+            editMode = false
+        }
+    }
+
+    private func deleteSelected() {
+        for item in items where selectedItemIDs.contains(item.persistentModelID) {
+            modelContext.delete(item)
+        }
+        try? modelContext.save()
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            selectedItemIDs.removeAll()
+            editMode = false
         }
     }
 }
