@@ -62,10 +62,10 @@ struct ItemView: View {
                 }
                 .padding(.horizontal, 20)
             }
+            .padding(.horizontal, 6)
             .padding(.bottom, 32)
         }
         .scrollDismissesKeyboard(.interactively)
-        .padding(.horizontal, 6)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(configModel.backgroundColor.ignoresSafeArea())
         .navigationBarBackButtonHidden()

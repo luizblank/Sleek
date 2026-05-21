@@ -11,7 +11,7 @@ import SwiftData
 @main
 struct ThriftApp: App {
     @StateObject private var configModel = Config()
-    
+
     var body: some Scene {
         WindowGroup {
             RouterView()

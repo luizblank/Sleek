@@ -76,7 +76,7 @@ struct HomeView: View {
                     .accessibilityAddTraits(.isButton)
                     .accessibilityHint("Click here to add a new item to your wishlist")
                 }
-                .position(x: containerSize.width / 2, y: containerSize.height - 100)
+                .position(x: containerSize.width / 2, y: containerSize.height - 40)
                 .offset(y: editMode ? 300 : 0)
                 
                 HStack {
@@ -121,7 +121,7 @@ struct HomeView: View {
                     .accessibilityAddTraits(.isButton)
                     .accessibilityHint("Delete the selected items from your wishlist")
                 }
-                .position(x: containerSize.width / 2, y: containerSize.height - 100)
+                .position(x: containerSize.width / 2, y: containerSize.height - 40)
                 .offset(y: editMode ? 0 : 300)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

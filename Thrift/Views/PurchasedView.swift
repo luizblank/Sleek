@@ -59,7 +59,7 @@ struct PurchasedView: View {
 
                     Spacer()
                 }
-                .position(x: containerSize.width / 2, y: containerSize.height - 100)
+                .position(x: containerSize.width / 2, y: containerSize.height - 40)
                 .offset(y: editMode ? 300 : 0)
 
                 HStack {
@@ -104,7 +104,7 @@ struct PurchasedView: View {
                     .accessibilityAddTraits(.isButton)
                     .accessibilityHint("Delete the selected items from your wardrobe")
                 }
-                .position(x: containerSize.width / 2, y: containerSize.height - 100)
+                .position(x: containerSize.width / 2, y: containerSize.height - 40)
                 .offset(y: editMode ? 0 : 300)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
